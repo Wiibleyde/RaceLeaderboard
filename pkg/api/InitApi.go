@@ -17,5 +17,9 @@ func InitApi() {
 	app.Get("/", homeApi)
 	app.Get("/status", statusApi)
 
+	app.Post("/createRace", createRaceApi)
+	app.Post("/deleteRace", deleteRaceApi)
+	app.Get("/listRaces", listRaceApi)
+
 	app.Listen(":3000")
 }
