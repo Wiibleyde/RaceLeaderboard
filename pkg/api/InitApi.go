@@ -21,5 +21,9 @@ func InitApi() {
 	app.Post("/deleteRace", deleteRaceApi)
 	app.Get("/listRaces", listRaceApi)
 
+	app.Post("/addDriver", addDriverApi)
+	app.Post("/deleteDriver", deleteDriverApi)
+	app.Get("/listDriver", listDriverApi)
+	
 	app.Listen(":3000")
 }

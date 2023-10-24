@@ -43,10 +43,25 @@ func InsertRaceDriver(DriverFName string, DriverLName string, DriverNumber strin
 
 	minizedDriverNumber := minimizePhoneNumber(DriverNumber)
 
+	println(testIfRaceDriverExist(DriverFName, DriverLName, minizedDriverNumber))
+
+	if testIfRaceDriverExist(DriverFName, DriverLName, minizedDriverNumber) {
+		return
+	}
+
 	_, err := db.Exec("INSERT INTO RaceDrivers (DriverFName, DriverLName, DriverNumber) VALUES (?, ?, ?)", DriverFName, DriverLName, minizedDriverNumber)
 	if err != nil {
 		logger.ErrorLogger.Println(err.Error())
 	}
+}
+
+func testIfRaceDriverExist(DriverFName string, DriverLName string, DriverNumber int) bool {
+	err := db.QueryRow("SELECT * FROM RaceDrivers WHERE DriverFName = ? AND DriverLName = ? AND DriverNumber = ?", DriverFName, DriverLName, DriverNumber).Scan()
+	if err != nil {
+		logger.ErrorLogger.Println(err.Error())
+		return false
+	}
+	return true
 }
 
 func GetRaceDriver(Id int) RaceDrivers {
@@ -56,6 +71,55 @@ func GetRaceDriver(Id int) RaceDrivers {
 	var raceDriver RaceDrivers
 
 	err := db.QueryRow("SELECT * FROM RaceDrivers WHERE Id = ?", Id).Scan(&raceDriver.Id, &raceDriver.DriverFName, &raceDriver.DriverLName, &raceDriver.DriverNumber)
+	if err != nil {
+		logger.ErrorLogger.Println(err.Error())
+	}
+
+	return raceDriver
+}
+
+func DeleteRaceDriver(Id int) {
+	InitDatabase()
+	defer CloseDatabase()
+
+	_, err := db.Exec("DELETE FROM RaceDrivers WHERE Id = ?", Id)
+	if err != nil {
+		logger.ErrorLogger.Println(err.Error())
+	}
+}
+
+func GetRaceDrivers() []RaceDrivers {
+	InitDatabase()
+	defer CloseDatabase()
+
+	var raceDrivers []RaceDrivers
+
+	rows, err := db.Query("SELECT * FROM RaceDrivers")
+	if err != nil {
+		logger.ErrorLogger.Println(err.Error())
+	}
+
+	for rows.Next() {
+		var raceDriver RaceDrivers
+		err := rows.Scan(&raceDriver.Id, &raceDriver.DriverFName, &raceDriver.DriverLName, &raceDriver.DriverNumber)
+		if err != nil {
+			logger.ErrorLogger.Println(err.Error())
+		}
+		raceDrivers = append(raceDrivers, raceDriver)
+	}
+
+	return raceDrivers
+}
+
+func GetRaceDriverByNumber(DriverNumber string) RaceDrivers {
+	InitDatabase()
+	defer CloseDatabase()
+
+	var raceDriver RaceDrivers
+
+	minizedDriverNumber := minimizePhoneNumber(DriverNumber)
+
+	err := db.QueryRow("SELECT * FROM RaceDrivers WHERE DriverNumber = ?", minizedDriverNumber).Scan(&raceDriver.Id, &raceDriver.DriverFName, &raceDriver.DriverLName, &raceDriver.DriverNumber)
 	if err != nil {
 		logger.ErrorLogger.Println(err.Error())
 	}
