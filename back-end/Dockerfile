@@ -15,6 +15,6 @@ WORKDIR /root
 # Copy the built binary from the builder stage to the final stage
 COPY --from=builder /app/main .
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["./main"]

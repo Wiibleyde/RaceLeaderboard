@@ -2,6 +2,8 @@ package api
 
 import (
 	"data"
+	"logger"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,6 +17,7 @@ type addDriverApiStruct struct {
 func addDriverApi(c *fiber.Ctx) error {
 	var addDriverApi addDriverApiStruct
 	if err := c.BodyParser(&addDriverApi); err != nil {
+		logger.ErrorLogger.Println(err)
 		return err
 	}
 
@@ -24,7 +27,7 @@ func addDriverApi(c *fiber.Ctx) error {
 	if racerAdded.Id == 0 {
 		return c.SendString("ERROR")
 	}
-	
+
 	return c.SendString("OK")
 }
 
@@ -35,6 +38,7 @@ type deleteDriverApiStruct struct {
 func deleteDriverApi(c *fiber.Ctx) error {
 	var deleteDriverApi deleteDriverApiStruct
 	if err := c.BodyParser(&deleteDriverApi); err != nil {
+		logger.ErrorLogger.Println(err)
 		return err
 	}
 
@@ -44,7 +48,7 @@ func deleteDriverApi(c *fiber.Ctx) error {
 }
 
 type updateDriverApiStruct struct {
-	DriverId     int
+	DriverId     string
 	DriverFName  string
 	DriverLName  string
 	DriverNumber string
@@ -53,10 +57,17 @@ type updateDriverApiStruct struct {
 func updateDriverApi(c *fiber.Ctx) error {
 	var updateDriverApi updateDriverApiStruct
 	if err := c.BodyParser(&updateDriverApi); err != nil {
+		logger.ErrorLogger.Println(err)
 		return err
 	}
 
-	data.UpdateRaceDriver(updateDriverApi.DriverId, updateDriverApi.DriverFName, updateDriverApi.DriverLName, updateDriverApi.DriverNumber)
+	id, err := strconv.Atoi(updateDriverApi.DriverId)
+	if err != nil {
+		logger.ErrorLogger.Println(err)
+		return err
+	}
+
+	data.UpdateRaceDriver(id, updateDriverApi.DriverFName, updateDriverApi.DriverLName, updateDriverApi.DriverNumber)
 
 	return c.SendString("OK")
 }
@@ -65,3 +76,15 @@ func listDriverApi(c *fiber.Ctx) error {
 	return c.JSON(data.GetRaceDrivers())
 }
 
+func getDriverApi(c *fiber.Ctx) error {
+	var id int
+	var err error
+
+	id, err = strconv.Atoi(c.Query("id"))
+	if err != nil {
+		logger.ErrorLogger.Println(err)
+		return err
+	}
+
+	return c.JSON(data.GetRaceDriver(id))
+}
