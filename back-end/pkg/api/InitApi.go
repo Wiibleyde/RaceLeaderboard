@@ -23,6 +23,7 @@ func InitApi() {
 
 	app.Post("/addDriver", addDriverApi)
 	app.Post("/deleteDriver", deleteDriverApi)
+	app.Post("/updateDriver", updateDriverApi)
 	app.Get("/listDriver", listDriverApi)
 	
 	app.Listen(":3000")

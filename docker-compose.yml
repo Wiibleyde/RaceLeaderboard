@@ -4,6 +4,7 @@ services:
   db:
     image: mariadb:latest
     container_name: db
+    restart: always
     ports:
       - 3306:3306
     environment:
@@ -13,3 +14,30 @@ services:
       MYSQL_PASSWORD: race
     volumes:
       - ./database:/var/lib/mysql
+
+  back-end:
+    build: ./back-end
+    image: wiibleyde/race-api:latest
+    container_name: back-end
+    restart: always
+    ports:
+      - 3001:3000
+    depends_on:
+      - db
+    environment:
+      - STARTED_BY_DOCKER=true
+    volumes:
+      - ./back-end/logs:/root/logs/
+
+  front-end:
+    build: ./front-end
+    image: wiibleyde/race-front:latest
+    container_name: front-end
+    restart: always
+    ports:
+      - 80:3000
+    depends_on:
+      - back-end
+    environment:
+      - STARTED_BY_DOCKER=true
+    

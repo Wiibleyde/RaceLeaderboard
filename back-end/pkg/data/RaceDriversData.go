@@ -56,12 +56,18 @@ func InsertRaceDriver(DriverFName string, DriverLName string, DriverNumber strin
 }
 
 func testIfRaceDriverExist(DriverFName string, DriverLName string, DriverNumber int) bool {
-	err := db.QueryRow("SELECT * FROM RaceDrivers WHERE DriverFName = ? AND DriverLName = ? AND DriverNumber = ?", DriverFName, DriverLName, DriverNumber).Scan()
+	var raceDriver RaceDrivers
+
+	err := db.QueryRow("SELECT * FROM RaceDrivers WHERE DriverFName = ? AND DriverLName = ? AND DriverNumber = ?", DriverFName, DriverLName, DriverNumber).Scan(&raceDriver.Id, &raceDriver.DriverFName, &raceDriver.DriverLName, &raceDriver.DriverNumber)
 	if err != nil {
 		logger.ErrorLogger.Println(err.Error())
-		return false
 	}
-	return true
+
+	if raceDriver.Id == 0 {
+		return false
+	} else {
+		return true
+	}
 }
 
 func GetRaceDriver(Id int) RaceDrivers {
@@ -125,4 +131,16 @@ func GetRaceDriverByNumber(DriverNumber string) RaceDrivers {
 	}
 
 	return raceDriver
+}
+
+func UpdateRaceDriver(Id int, DriverFName string, DriverLName string, DriverNumber string) {
+	InitDatabase()
+	defer CloseDatabase()
+
+	minizedDriverNumber := minimizePhoneNumber(DriverNumber)
+
+	_, err := db.Exec("UPDATE RaceDrivers SET DriverFName = ?, DriverLName = ?, DriverNumber = ? WHERE Id = ?", DriverFName, DriverLName, minizedDriverNumber, Id)
+	if err != nil {
+		logger.ErrorLogger.Println(err.Error())
+	}
 }

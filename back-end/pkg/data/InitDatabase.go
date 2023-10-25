@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"logger"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -19,9 +20,17 @@ var db *sql.DB
 
 func InitDatabase() {
 	var err error
-	db, err = sql.Open("mysql", databaseUser+":"+databasePassword+"@tcp("+databaseHost+":"+databasePort+")/"+databaseName)
-	if err != nil {
-		logger.ErrorLogger.Println(err.Error())
+	// if env var STARTED_BY_DOCKER is set to true, then we are running in a docker container so we need to use the docker host
+	if os.Getenv("STARTED_BY_DOCKER") == "true" {
+		db, err = sql.Open("mysql", databaseUser+":"+databasePassword+"@tcp(db)/"+databaseName)
+		if err != nil {
+			logger.ErrorLogger.Println(err.Error())
+		}
+	} else {
+		db, err = sql.Open("mysql", databaseUser+":"+databasePassword+"@tcp("+databaseHost+":"+databasePort+")/"+databaseName)
+		if err != nil {
+			logger.ErrorLogger.Println(err.Error())
+		}
 	}
 }
 

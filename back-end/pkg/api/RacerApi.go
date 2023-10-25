@@ -43,6 +43,24 @@ func deleteDriverApi(c *fiber.Ctx) error {
 	return c.SendString("OK")
 }
 
+type updateDriverApiStruct struct {
+	DriverId     int
+	DriverFName  string
+	DriverLName  string
+	DriverNumber string
+}
+
+func updateDriverApi(c *fiber.Ctx) error {
+	var updateDriverApi updateDriverApiStruct
+	if err := c.BodyParser(&updateDriverApi); err != nil {
+		return err
+	}
+
+	data.UpdateRaceDriver(updateDriverApi.DriverId, updateDriverApi.DriverFName, updateDriverApi.DriverLName, updateDriverApi.DriverNumber)
+
+	return c.SendString("OK")
+}
+
 func listDriverApi(c *fiber.Ctx) error {
 	return c.JSON(data.GetRaceDrivers())
 }
