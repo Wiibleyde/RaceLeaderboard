@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm i
+RUN npm run build
 
-CMD ["npm", "start"]
+CMD ["serve", "-s", "build", "-l", "3000"]
